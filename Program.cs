@@ -1,19 +1,25 @@
 ﻿Webshop w = new Webshop();
 
 Console.WriteLine(w.NyKunde(12345678, "Jens Jensen"));
-Ordre o = w.NyOrdre(12345678, 6969420); // JEG SYNES NU HELT ÆRLIGT DET HAVDE GIVET MEGET 
-int i = 0; // MEGET MERE MENING HVIS KUNDEN MÅTTE HAVE ORDREN, I STEDET FOR DEN ANDEN VEJ RUNDT. 
-while (i < o.kundeList.Count)
-{
-    Console.WriteLine(o.kundeList[i].navn);
-    i++;
-}
+w.NyKunde(23456789, "Christian Christensen");
+w.NyKunde(34567891, "Lars Larsen");
+w.NyOrdre(12345678, 1);
+w.NyOrdre(12345678, 2);
+w.NyOrdre(12345678, 3);
+
+Ordre o = w.NyOrdre(12345678, 4); // JEG SYNES NU HELT ÆRLIGT DET HAVDE GIVET MEGET 
+Console.WriteLine(o.kunde.navn); // MEGET MERE MENING HVIS KUNDEN MÅTTE HAVE ORDREN, I STEDET FOR DEN ANDEN VEJ RUNDT. 
 
 w.NyOrdre(100, 100);
+w.NyOrdre(12345678, 1);
+
+w.SeUbetalte();
 
 class Webshop
 {
-    List<Kunde> kundeListe = new List<Kunde>(); 
+    List<Kunde> kundeListe = new List<Kunde>();
+    List<Ordre> ordreListe = new List<Ordre>();
+
     public string NyKunde(int telefonnummer, string navn)
     {
         string svar = opretKunde(telefonnummer, navn);
@@ -41,18 +47,64 @@ class Webshop
         }
         return k;
     }
+
+    public List<Ordre> SeUbetalte()
+    {
+        List<Ordre> oListe = new List<Ordre>();
+        int i = 0;
+        while (i < ordreListe.Count)
+        {
+            if (!ordreListe[i].AfventerBetaling)
+            {
+                oListe.Add(ordreListe[i]);
+            }
+            i++;
+        }
+        PrintUbetalte(oListe);
+        return oListe;
+    }
+
+    private void PrintUbetalte(List<Ordre> oListe)
+    {
+        int i = 0;
+        while (i < oListe.Count)
+        {
+            Console.WriteLine("Ordren: " + oListe[i].ordrenummer + " er ikke blevet betalt.");
+            i++;
+        }
+    }
+
+    private  bool CheckOrdreExists(int ordrenummer)
+    {
+        bool svar = false;
+        int i = 0;
+        while(i  < ordreListe.Count)
+        {
+            if (ordreListe[i].ordrenummer == ordrenummer)
+            {
+                svar = true;
+            }
+            i++;
+        }
+
+        return svar;
+    }
     public Ordre NyOrdre(int telefonnummer, int ordrenummer)
     {
         Kunde k = find(telefonnummer);
+        bool findesOrdre = CheckOrdreExists(ordrenummer);
         Ordre o = null;
-        if (k != null)
+        if (k != null && !findesOrdre)
         {
             o = opretOrdre(ordrenummer);
             bindKunde(k, o);
         }
         else
         {
-            Console.WriteLine("Der findes ingen eksisterende kunde med telefonnummeret: " + telefonnummer);
+            if(k == null)
+                Console.WriteLine("Der findes ingen eksisterende kunde med telefonnummeret: " + telefonnummer);
+            else
+                Console.WriteLine("Ordrenummeret eksisterer allerede");
         }
         return o;
     }
@@ -63,7 +115,8 @@ class Webshop
     }
     private void bindKunde(Kunde k, Ordre o)
     {
-        o.kundeList.Add(k);
+        o.kunde = k;
+        ordreListe.Add(o);
     }
 }
 
@@ -81,10 +134,9 @@ class Ordre
 {
     public int ordrenummer;
     public bool AfventerBetaling;
-    public List<Kunde> kundeList;
+    public Kunde kunde;
     public Ordre(int ordrenummer)
     {
         this.ordrenummer = ordrenummer;
-        this.kundeList = new List<Kunde>();
     }
 }

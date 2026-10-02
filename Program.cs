@@ -12,9 +12,14 @@ Console.WriteLine(o.kunde.navn); // MEGET MERE MENING HVIS KUNDEN MÅTTE HAVE OR
 
 w.NyOrdre(100, 100);
 w.NyOrdre(12345678, 1);
-
 w.SeUbetalte();
 
+Console.WriteLine("---------");
+Console.WriteLine(w.Betal(1));
+Console.WriteLine(w.Betal(1));
+Console.WriteLine(w.Betal(2));
+Console.WriteLine("---------");
+w.SeUbetalte();
 class Webshop
 {
     List<Kunde> kundeListe = new List<Kunde>();
@@ -54,7 +59,7 @@ class Webshop
         int i = 0;
         while (i < ordreListe.Count)
         {
-            if (!ordreListe[i].AfventerBetaling)
+            if (ordreListe[i].AfventerBetaling)
             {
                 oListe.Add(ordreListe[i]);
             }
@@ -74,6 +79,40 @@ class Webshop
         }
     }
 
+    public string Betal(int ordrenummer)
+    {
+        bool findesOrdre = CheckOrdreExists(ordrenummer);
+        Ordre o = null;
+        string svar = "Ordren: " + ordrenummer + " er allerede blevet betalt!";
+        if(findesOrdre)
+            o = findOrdre(ordrenummer);
+        if(o.AfventerBetaling)
+            svar = betalOrdre(o);
+        return svar;
+    }
+    private string betalOrdre(Ordre o)
+    {
+        if( o != null)
+        {
+            o.AfventerBetaling = false;
+        }
+        return "Ordren: " + o.ordrenummer + " er blevet betalt!";
+    }
+
+    private Ordre findOrdre(int ordrenummer)
+    {
+        int i = 0;
+        Ordre o = null;
+        while (i < ordreListe.Count)
+        {
+            if (ordreListe[i].ordrenummer == ordrenummer)
+            {
+                o = ordreListe[i];
+            }
+            i++;
+        }
+        return o;
+    }
     private  bool CheckOrdreExists(int ordrenummer)
     {
         bool svar = false;
@@ -138,5 +177,6 @@ class Ordre
     public Ordre(int ordrenummer)
     {
         this.ordrenummer = ordrenummer;
+        this.AfventerBetaling = true;
     }
 }

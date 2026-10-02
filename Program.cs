@@ -11,14 +11,17 @@ Ordre o = w.NyOrdre(12345678, 4); // JEG SYNES NU HELT ÆRLIGT DET HAVDE GIVET M
 Console.WriteLine(o.kunde.navn); // MEGET MERE MENING HVIS KUNDEN MÅTTE HAVE ORDREN, I STEDET FOR DEN ANDEN VEJ RUNDT. 
 
 w.NyOrdre(100, 100);
-w.NyOrdre(12345678, 1);
-w.SeUbetalte();
+w.NyOrdre(12345678, 1); 
+w.SeUbetalte();  //JEG SYNES UC3 ER LIDT UKLAR. ER DET KUNDEN ELLER ADMIN DER SKAL SE LISTEN AF UBETALTE? 
 
 Console.WriteLine("---------");
+Console.WriteLine(w.Afsend(1));
 Console.WriteLine(w.Betal(1));
 Console.WriteLine(w.Betal(1));
+Console.WriteLine(w.Afsend(1));
 Console.WriteLine(w.Betal(2));
 Console.WriteLine("---------");
+w.NyOrdre(12345678, 1);
 w.SeUbetalte();
 class Webshop
 {
@@ -77,6 +80,32 @@ class Webshop
             Console.WriteLine("Ordren: " + oListe[i].ordrenummer + " er ikke blevet betalt.");
             i++;
         }
+    }
+
+    public string Afsend(int ordrenummer)
+    {
+        bool findesOrdre = CheckOrdreExists(ordrenummer);
+        bool ordreBetalt = false;
+        string svar = "Ordren: " + ordrenummer + " er ikke blevet betalt!";
+        Ordre o = null;
+        if (findesOrdre)
+            o = findOrdre(ordrenummer);
+        if (o != null)
+            ordreBetalt = !checkBetalt(o);
+        if (ordreBetalt)
+           svar = sletOrdre(o);
+        return svar;
+    }
+
+    private string sletOrdre(Ordre o)
+    {
+        string ordrenummer = o.ordrenummer.ToString();
+        ordreListe.Remove(o);
+        return "Ordren: " + ordrenummer + " er blevet afsendt!";
+    }
+    private bool checkBetalt(Ordre o)
+    {
+        return o.AfventerBetaling;
     }
 
     public string Betal(int ordrenummer)
